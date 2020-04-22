@@ -110,7 +110,9 @@ length: 3
 
 举例：
 
-![JS堆栈内存的运行机制](C:\Users\ZHCZ\Desktop\growth-record\Demo\ZF\全面攻克JavaScript底层三座大山\堆栈内存及闭包作用域\images\JS堆栈内存的运行机制.png)
+![JS堆栈内存的运行机制](./images/JS堆栈内存的运行机制.png)
+
+
 
 a = 12 变量赋值的三步操作：
 
