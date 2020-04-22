@@ -1,6 +1,6 @@
-# Web前端开发高级工程师
+# Web front-end development senior engineer
 
-## 模块一：全面攻克JavaScript底层三座大山
+## 模块一：全面攻克 JavaScript 底层三座大山
 
 ### 1.  [堆栈内存及闭包作用域](https://luckrain7.github.io/Web-FEDSE/module-1/1/)
 
