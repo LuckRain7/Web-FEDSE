@@ -435,9 +435,11 @@ ECStack = [
 
 
 
-#### 课后题
+### 1.4  闭包作业复习
 
-- 1
+> 
+
+- 题1
 
 ```javascript
 let x = 5;
@@ -461,35 +463,70 @@ function fn(x) {
 }
 let f = fn(6);
 f(7); // x = 7  log:14
-fn(8)(9); // 18
+fn(8)(9); // log:18
 f(10); // x = 8 log:18
 console.log(x); // 5
 ```
 
+图解：
 
+![1.3q1-1](./images/1.3q1-1.png)
 
-![1.3q1](./images/1.3q1.png)
+![1.3q1-2](./images/1.3q1-2.png)
 
-
-
-
+- 题2
 
 ```javascript
-let a=0,
-    b=0;
-function A(a){
-    A=function(b){
-        alert(a+b++);
-    };
-    alert(a++);
+let x = 5;
+function fn() {
+    return function(y) {
+        console.log(y + (++x));
+    }
 }
-A(1);
-A(2);
+let f = fn(6);
+f(7);
+fn(8)(9);
+f(10);
+console.log(x);
+
+// --- ↓ 输出 --- 
+let x = 5;
+function fn() {
+    return function(y) {
+        console.log(y + (++x));
+    }
+}
+let f = fn(6);
+f(7); // ++5 => 6+7 => log:13
+fn(8)(9); // 9 + ++6 => log:16
+f(10); // 10 + ++7 => log:18
+console.log(x); // log:8
 ```
 
+![1.4-q2](./images/1.4-q2.png)
+
+
+
+
+
 
 
 ```javascript
+var x = 3,
+    obj = {x: 5};
+obj.fn = (function () {
+    this.x *= ++x;
+    return function (y) {
+        this.x *= (++x)+y;
+        console.log(x);
+    }
+})();
+var fn = obj.fn;
+obj.fn(6);
+fn(4);
+console.log(obj.x, x);
+
+
 var x = 3,
     obj = {x: 5};
 obj.fn = (function () {
