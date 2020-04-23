@@ -1,3 +1,5 @@
+
+
 # 模块一：全面攻克JavaScript底层三座大山
 
 ## 1.堆栈内存及闭包作用于
@@ -92,6 +94,8 @@ length: 3
 
 ### 1.2  JS 堆栈内存的运行机制
 
+#### 知识点
+
 编译器（把代码解析成浏览器看得懂的结构）
 
 - 词法解析 ↓
@@ -122,10 +126,12 @@ a = 12 变量赋值的三步操作：
 
 - 3.让变量和值关联起来（赋值） 定义 defined
 
-课后题：
+#### 课后题：
+
+- 题1
 
 ```javascript
-/*阿里面试题*/
+/*阿里面试题 q1.png*/
 let a = {
     n: 10
 };
@@ -144,8 +150,12 @@ console.log(b);
 // 再执行 b.m = b  也就是把 { n: 10 ,m: undefined } 中 m 指向了 { n: 20 }
 ```
 
+![阿里面试题 q1.png](./images/q1.png)
+
+- 题2
+
 ```javascript
-/*360面试题*/
+/*360面试题  q2.png*/
 let x = [12, 23];
 function fn(y) {
     y[0] = 100;
@@ -159,14 +169,339 @@ console.log(x);
 // ↓ 输出
 [100, 200]
 [100, 23] // y=[100] 切换了指向 所以23没有变化
+// ps: 赋值和改变指向地址的区别
+```
+
+
+
+![360面试题  q2.png](./images/q2.png)
+
+> ps:函数也是变量，和let和var创建的变量本质是一样的，区别是存储的值是函数类型的值
+
+- 题3
+
+```javascript
+var x = 10;
+~ function (x) {
+    console.log(x);
+    x = x || 20 && 30 || 40;
+    console.log(x);
+}();
+console.log(x);
+
+// ↓ 输出
+
+var x = 10;
+~ function (x) {
+    console.log(x); // 没有传参 arguments ={} x = undefined
+    x = x || 20 && 30 || 40;
+    console.log(x); // 30
+}();
+console.log(x); // 10
+```
+
+
+
+![q3](C:\Users\ZHCZ\Desktop\Web-FEDSE\module-1\1\images\q3.png)
+
+> Tips:  
+>
+> A || B  ：A为真，返回A，否则返回B
+>
+> A && B  ：A为真，返回B，否则返回A
+>
+> && 优先级高于 || 
+
+
+
+- 题4
+
+```javascript
+let x = [1, 2],
+    y = [3, 4];
+~ function (x) {
+    x.push('A');
+    x = x.slice(0);
+    x.push('B');
+    x = y;
+    x.push('C');
+    console.log(x, y);
+}(x);
+console.log(x, y);
+
+// ↓ 输出
+let x = [1, 2],
+    y = [3, 4];
+~ function (x) {
+    x.push('A'); // x = [1, 2, 'A'] （堆AAAFFF000）
+    x = x.slice(0); // x = [1, 2, 'A']（会创建并指向克隆堆BBBFFF000）
+    x.push('B'); // x = [1, 2, 'A', 'B']（堆BBBFFF000）
+    x = y; // 更换指向全局的y（堆BBBFFF111）
+    x.push('C'); // x = [3, 4, 'C']（堆BBBFFF111）
+    console.log(x, y); // [3, 4, 'C'] [3, 4, 'C'] （堆BBBFFF111）
+}(x);
+console.log(x, y); // [1, 2, 'A'] [3, 4，'c'] 
+// ps: 永远要注意指向问题
+```
+
+![q4](C:\Users\ZHCZ\Desktop\Web-FEDSE\module-1\1\images\q4.png)
+
+
+
+- 题5
+
+```javascript
+let res = parseFloat('left:200px');
+if(res===200){
+   alert(200);
+}else if(res===NaN){
+   alert(NaN);
+}else if(typeof res==='number'){
+   alert('number');
+}else{
+   alert('Invalid Number');
+}
 ```
 
 
 
 
 
-### 1.3  变量提升机制
+- arguments 在严格和非严格模式下的区别
+
+```javascript
+/* 非严格模式 */
+function fn(x, y){
+  console.log(x, y, arguments)
+  arguments[0] = 100
+  y = 200
+  console.log(x, y, arguments)
+}
+fn(10, 20)
+
+// 解析
+function fn(x, y){
+  /*
+   * arguments = {0:10,1:20}
+   * x = 10
+   * y = 20 
+   * 形成对应的映射关系（非严格模式）
+   */
+  console.log(x, y, arguments)
+  arguments[0] = 100
+  y = 200
+  console.log(x, y, arguments)
+}
+fn(10, 20)
+// ↓ 输出
+10 20 [10,20]
+100 200 [100,200]
+```
+
+```javascript
+ "use strict"; // 严格模式（阻断了映射规则）
+function fn(x, y) {
+  console.log(x, y, arguments); //=>10 20 [10,20]
+  arguments[0] = 100;
+  y = 200;
+  console.log(x, y, arguments); //=>10 200 [100,20]
+}
+fn(10, 20); 
+```
 
 
 
-### 1.4  作用于和作用域链
+### 1.3  GO/VO/AO/EC及作用域和执行上下文
+
+#### 知识点：
+
+GO：全局对象(Global Object) 
+
+EC：Execution Context 执行环境（执行上下文）
+
+- VO：Varibale Object 变量对象
+- AO：Activation Object 活动对象 （函数的叫做AO，理解为VO的一个分支）
+
+ ECStack：Execution [ˌeksɪˈkjuːʃn] Context Stack 执行环境栈 
+
+ Scope：作用域，创建的函数的时候就赋予的 
+
+ Scope Chain ：作用域链 
+
+
+
+例子：
+
+```javascript
+let x = 1;
+function A(y){
+   let x = 2;
+   function B(z){
+       console.log(x+y+z);
+   }
+   return B;
+}
+let C = A(2);
+C(3);
+
+//----------------------------------------------//
+/*第一步：创建全局执行上下文，并将其压入ECStack中*/
+ECStack = [
+    //=>全局执行上下文
+    EC(G) = {
+        //=>全局变量对象
+        VO(G):{
+            ... //=>包含全局对象原有的属性
+            x = 1;
+            A = function(y){...};
+            A[[scope]] = VO(G); //=>创建函数的时候就确定了其作用域
+        }
+    }
+];
+
+/*第二步：执行函数A(2)*/
+ECStack = [
+    //=>A的执行上下文
+    EC(A) = {
+        //=>链表初始化为：AO(A)->VO(G)
+        [scope]:VO(G)
+        scopeChain:<AO(A),A[[scope]]>
+        //=>创建函数A的活动对象
+        AO(A) : {
+            arguments:[0:2],
+            y:2,
+            x:2,
+            B:function(z){...},
+            B[[scope]] = AO(A);
+            this:window;
+        }
+    },
+    //=>全局执行上下文
+    EC(G) = {
+        //=>全局变量对象
+        VO(G):{
+            ... //=>包含全局对象原有的属性
+            x = 1;
+            A = function(y){...};
+            A[[scope]] = VO(G); //=>创建函数的时候就确定了其作用域
+        }
+    }
+];
+
+/*第三步：执行B/C函数 C(3)*/
+ECStack = [
+    //=>B的执行上下文
+    EC(B){
+        [scope]:AO(A)
+        scopeChain:<AO(B),AO(A),B[[scope]]
+        //=>创建函数B的活动对象
+        AO(B):{
+            arguments:[0:3],
+            z:3,
+            this:window;
+        }
+    },
+    //=>A的执行上下文
+    EC(A) = {
+        //=>链表初始化为：AO(A)->VO(G)
+        [scope]:VO(G)
+        scopeChain:<AO(A),A[[scope]]>
+        //=>创建函数A的活动对象
+        AO(A) : {
+            arguments:[0:2],
+            y:2,
+            x:2,
+            B:function(z){...},
+            B[[scope]] = AO(A);
+            this:window;
+        }
+    },
+    //=>全局执行上下文
+    EC(G) = {
+        //=>全局变量对象
+        VO(G):{
+            ... //=>包含全局对象原有的属性
+            x = 1;
+            A = function(y){...};
+            A[[scope]] = VO(G); //=>创建函数的时候就确定了其作用域
+        }
+    }
+];
+```
+
+![GOVOAOEC](./images/GOVOAOEC.png)
+
+> ps：沿着栈向下查找，直到全局作用域为止
+
+
+
+#### 课后题
+
+- 1
+
+```javascript
+let x = 5;
+function fn(x) {
+    return function(y) {
+        console.log(y + (++x));
+    }
+}
+let f = fn(6);
+f(7);
+fn(8)(9);
+f(10);
+console.log(x);
+
+// ↓ 输出
+let x = 5;
+function fn(x) {
+    return function(y) {
+        console.log(y + (++x));
+    }
+}
+let f = fn(6);
+f(7); // x = 7  log:14
+fn(8)(9); // 18
+f(10); // x = 8 log:18
+console.log(x); // 5
+```
+
+
+
+![1.3q1](./images/1.3q1.png)
+
+
+
+
+
+```javascript
+let a=0,
+    b=0;
+function A(a){
+    A=function(b){
+        alert(a+b++);
+    };
+    alert(a++);
+}
+A(1);
+A(2);
+```
+
+
+
+```javascript
+var x = 3,
+    obj = {x: 5};
+obj.fn = (function () {
+    this.x *= ++x;
+    return function (y) {
+        this.x *= (++x)+y;
+        console.log(x);
+    }
+})();
+var fn = obj.fn;
+obj.fn(6);
+fn(4);
+console.log(obj.x, x);
+```
+
