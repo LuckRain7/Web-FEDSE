@@ -6,8 +6,8 @@
 
 module.exports = {
   base:'/web-fedse/',
-  title: '诸城重构2.0',
-  description: '这里是诸城重构2.0项目文档',
+  title: 'web高级前端工程师',
+  description: '这里web高级前端工程师文档',
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   markdown: {
     // lineNumbers: true // 代码块显示行号
