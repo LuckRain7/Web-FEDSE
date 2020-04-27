@@ -9,4 +9,4 @@
 - [面向对象(oop)和 this 处理](/module-1/2.html)
 
 
-- [DOM/BOM 及事件处理机制]
+- [DOM/BOM 及事件处理机制](/module-1/3.html)
