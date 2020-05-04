@@ -70,13 +70,25 @@ viewport：布局视口，设置HTML布局的样式
 
 ![](/images/module-3/响应式布局开发.png)
 
-## 3. viewport 和 @media
 
-### 3.1  响应式布局开发 媒体适配@media
+
+## 3. 响应式布局开发(77)
+
+1. 媒体适配 @media
+2. 群魔乱舞时代
+   + 固定布局：`<meat name="viewport" content="width=320px">`
+   + 等比缩放布局：按照固定的样式写一版（例如：320），然后根据设备的宽度，让其除以320，计算出缩放的比例，最后让 HTML 基于 transform:scale（比例）进行缩放
+   + rem 响应式布局开发(等比缩放)：
+
+### 3.1 媒体适配  viewport 和 @media(77)
+
+#### 3.1.1  响应式布局开发 媒体适配@media
 
 媒体设备： all(所有设备)/print(打印设备)/screen(屏幕设备)
 
 媒体条件：某个条件写对应的样式。
+
+问题：写的样式要很多，比较麻烦
 
 ```html
 <style>
@@ -95,7 +107,7 @@ viewport：布局视口，设置HTML布局的样式
 <img src="images/example.png" class="example" />
 ```
 
-### 3.2  响应式布局开发的基础 viewport
+#### 3.1.2  响应式布局开发的基础 viewport
 
 > 把HTML页面放到手机端运行，HTML有默认的渲染宽度（一般都是980或者1024），也就是不管设备是多大的，HTML的宽度都是980  =>这样会导致一个问题：页面想要在手机设备上展示全，整体会缩小
 >
@@ -113,3 +125,93 @@ viewport：布局视口，设置HTML布局的样式
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 ```
 
+### 3.2. rem 等比缩放布局(78)
+
+**CSS 常用的单位：**
+
+- px 像素（固定单位）
+- em 相对单位，相对于父元素的字体大小设定的单位
+- rem （root em）相对于当前页面根元素（HTML）的字体大小设定的
+- %
+- deg
+- s / ms
+
+**开发过程：**
+
+- 拿到设计稿后（设计稿一般是750px），我们设定一个初识的 rem和 px 换算比例（一般设置为1rem=100px，为了后期方便换算）
+- 测量出设计稿中元素的尺寸（PS测出来的是px单位），在编写样式的时候全部转换为rem的单位（除以100即可）=> 100% 还原设计稿
+- 编写一段 JS，获取当前设备的宽度，让其除以设计稿的宽度750，在乘以初识的换算比例100，计算出当前设备下，1rem 应该等于多少像素（只要改变  HTML 的 font-size）：这样 HTML 字体大小一改，之前所有已 rem 为单位的元素都会跟着自动缩放。
+
+现在真实项目中，主体响应式布局以 rem 为主，部分效果实现可以基于 Flex 来做，需要样式微调还是要基于 @media 来实现
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html {
+            /* 1rem = 20px */
+            font-size: 20px;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            font-size: 20px;
+            background: lightblue;
+            margin: 20px;
+        }
+
+        .box:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            line-height: 150px;
+        }
+
+        .box:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            line-height: 200px;
+        }
+
+        @media screen and (width:375px) {
+            .box:nth-child(1) {
+                width: 117px;
+                height: 117px;
+                line-height: 117px;
+            }
+
+            .box:nth-child(2) {
+                width: 176px;
+                height: 176px;
+                line-height: 176px;
+            }
+        }
+    </style>
+    <script>
+        function computedREM() {
+            let HTML = document.documentElement,
+                winW = HTML.clientWidth;
+            HTML.style.fontSize = winW / 320 * 20 + 'px';
+        }
+        computedREM()
+        window.addEventListener('resize', computedREM)
+    </script>
+</head>
+
+<body>
+    <div class="box">1</div>
+    <div class="box">2</div>
+    <div class="box">3</div>
+</body>
+
+</html>
+```
+
+​	
