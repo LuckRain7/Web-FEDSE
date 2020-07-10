@@ -329,4 +329,139 @@ xhr.send();
 // 4
 ```
 
+
+
+### 62、Promise
+
+> https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
+
+Promise的诞生就是为了解决异步请求中的回调地狱问题：它是一种设计模式，ES6中提供了一个JS内置类Promise，来实现这种设计模式。
+
+
+
+
+
+- Promise及其作用
+  - ES6内置类
+  - 回调地狱：AJAX的串行和并行
+- Promise的executor函数和状态
+  - executor
+  - Promise状态
+    - pending 初始状态
+    - fulfilled 操作成功完成
+    - rejected 操作失败
+- Promise中的THEN和CATCH
+  - then(func1,func2) / then(func)
+  - catch(func)
+  - then链机制
+- Promise中其它常用方法
+  - Promise.all
+  - Promise.race
+  - Promise.reject （选）
+  - Promise.resolve （选）
+
+
+
+
+
+
+
+new Promise([executor]) 
+
+[executor]执行函数是必须传递的
+
+PROMISE是用来管理异步编程的，它本身不是异步的：new Promise的时候会立即把executor函数执行（只不过我们一般会在executor函数中处理一个异步操作）
+
+PROMISE本身有三个状态 =>[[PromiseStatus]]
+
+- pending 初始状态
+
+- fulfilled 代表操作成功（resolved）
+
+- rejected 代表当前操作失败
+
+
+
+PROMISE本身有一个VALUE值，用来记录成功的结果（或者是失败的原因的） =>[[PromiseValue]]
+
+```javascript
+let p1 = new Promise((resolve, reject) => {
+  setTimeout(_ => {
+    // 一般会在异步操作结束后，执行resolve/reject函数，执行这两个函数中的一个，都可以修改Promise的[[PromiseStatus]]/[[PromiseValue]]
+    // 一旦状态被改变，在执行resolve、reject就没有用了
+    resolve('ok');
+    reject('no');
+  }, 1000);
+}); 
+```
+
+
+
+new Promise的时候先执行executor函数，在这里开启了一个异步操作的任务（此时不等：把其放入到EventQuque任务队列中），继续执行
+
+
+
+p1.then基于THEN方法，存储起来两个函数（此时这两个函数还没有执行）；当executor函数中的异步操作结束了，基于resolve/reject控制Promise状态，从而决定执行then存储的函数中的某一个
+
+```javascript
+let p1 = new Promise((resolve, reject) => {
+  // resolve/reject 的执行，不论是否放到一个异步操作中，都需要等待then先执行完，把方法存储好，才会在更改状态后执行then中对应的方法 =>此处是一个异步操作（所以很多人说PROMISE是异步的），而且是微任务操作
+  resolve(100);
+});
+p1.then(result => {
+  console.log(`成功：` + result);
+}, reason => {
+  console.log(`失败：` + reason);
+});
+console.log(3);
+```
+
+
+
+
+
+THEN方法结束都会返回一个新的Promise实例（THEN链）
+
+[[PromiseStatus]]:'pending'
+
+[[PromiseValue]]:undefined
+
+
+
+
+
+p1这个new Promise出来的实例，成功或者失败，取决于executor函数执行的时候，执行的是resolve还是reject决定的，再或者executor函数执行发生异常错误，也是会把实例状态改为失败的
+
+
+
+ p2/p3这种每一次执行then返回的新实例的状态，由then中存储的方法执行的结果来决定最后的状态（上一个THEN中某个方法执行的结果，决定下一个then中哪一个方法会被执行）
+
+
+
+=>不论是成功的方法执行，还是失败的方法执行（THEN中的两个方法），凡是执行抛出了异常，则都会把实例的状态改为失败
+
+=>方法中如果返回一个新的PROMISE实例，返回这个实例的结果是成功还是失败，也决定了当前实例是成功还是失败
+
+ =>剩下的情况基本上都是让实例变为成功的状态 （方法返回的结果是当前实例的value值：上一个then中方法返回的结果会传递到下一个then的方法中）
+
+```javascript
+let p1 = new Promise((resolve, reject) => {
+  resolve(100);
+});
+let p2 = p1.then(result => {
+  console.log('成功：' + result);
+  return result + 100;
+}, reason => {
+  console.log('失败：' + reason);
+  return reason - 100;
+});
+let p3 = p2.then(result => {
+  console.log('成功：' + result);
+}, reason => {
+  console.log('失败：' + reason);
+}); 
+```
+
+
+
 ## 二、AJAX/HTTP 前后端数据交互
